@@ -1,313 +1,305 @@
-Car Rental Management System
-Assignment 4 – SOLID Architecture & Advanced OOP
-Endterm Project (Spring Boot REST API)
-<br>
-Project Information
+# Car Rental Management System
 
-Course: Object-Oriented Programming
-Assignment: Assignment 4 (based on Assignment 3) + Endterm
-Topic: Car Rental Management System
-Language: Java
-Framework: Spring Boot
-Database: PostgreSQL
+## Assignment 4 – SOLID Architecture & Advanced OOP
+## Endterm Project (Spring Boot REST API)
+
+---
+
+## Project Information
+
+Course: Object-Oriented Programming  
+Assignment: Assignment 4 (based on Assignment 3) + Endterm  
+Topic: Car Rental Management System  
+Language: Java  
+Framework: Spring Boot  
+Database: PostgreSQL  
 Architecture: Layered (Controller → Service → Repository)
 
-<br><br>
+---
 
-Project Overview
+## Project Overview
 
 This project is a Car Rental Management System implemented as a Spring Boot REST API.
 
-It is a refactored continuation of Assignment 3, redesigned to fully satisfy
-Assignment 4 and Endterm requirements, with a strong focus on:
+It is a refactored continuation of Assignment 3 and redesigned to fully satisfy
+Assignment 4 and Endterm requirements. The primary focus of this project is
+architectural quality rather than feature complexity.
 
-SOLID principles
+The system demonstrates correct usage of SOLID principles, clean layered
+architecture, advanced object-oriented programming features, JDBC-based
+database access, and RESTful API design.
 
-Clean layered architecture
+---
 
-Advanced Object-Oriented Programming
+## A. SOLID Documentation
 
-Proper separation of concerns
+### Single Responsibility Principle (SRP)
 
-JDBC-based database access
+Each class has exactly one responsibility:
 
-RESTful API design
+- model package contains domain entities such as Car, Customer, and Rental
+- repository package handles database access using JDBC
+- service package contains business logic and validation
+- controller package handles HTTP requests and responses
+- utils package contains reflection and sorting utilities
 
-The primary goal of this project is architectural quality, not feature quantity.
+---
 
-<br><br>
+### Open–Closed Principle (OCP)
 
-A. SOLID Principles Documentation
-Single Responsibility Principle (SRP)
+- Car is implemented as an abstract class
+- EconomyCar and LuxuryCar extend Car
+- New car types can be added as subclasses without modifying existing code
 
-Each class has one clearly defined responsibility:
+---
 
-model/ – Domain entities (Car, Customer, Rental)
+### Liskov Substitution Principle (LSP)
 
-repository/ – Database access via JDBC
+- EconomyCar and LuxuryCar can safely replace Car
+- Subclasses are used via base class references
+- Overridden methods preserve correct behavior
 
-service/ – Business logic and validation
+---
 
-controller/ – REST API request handling
-
-utils/ – Reflection and sorting utilities
-
-<br>
-Open–Closed Principle (OCP)
-
-Car is implemented as an abstract class
-
-EconomyCar and LuxuryCar extend Car
-
-New car types can be added through subclassing without modifying existing code
-
-<br>
-Liskov Substitution Principle (LSP)
-
-Subclasses are used through Car references
-
-Overridden methods preserve expected behavior
-
-<br>
-Interface Segregation Principle (ISP)
+### Interface Segregation Principle (ISP)
 
 Small, focused interfaces are used:
 
-Validatable – validation behavior
+- Validatable for validation logic
+- PricedItem for pricing behavior
+- CrudRepository<T> for generic CRUD operations
 
-PricedItem – pricing behavior
+Classes implement only the interfaces they actually need.
 
-CrudRepository<T> – generic CRUD operations
+---
 
-<br>
-Dependency Inversion Principle (DIP)
+### Dependency Inversion Principle (DIP)
 
-RentalService depends on CarRepositoryInterface
+- RentalService depends on CarRepositoryInterface
+- Repository implementation is injected via constructor
+- High-level modules depend on abstractions, not concrete implementations
 
-Concrete implementations are injected using Spring
+---
 
-High-level modules depend on abstractions
+## B. Advanced OOP Features
 
-<br><br>
+### Generics
 
-B. Advanced OOP Features
-Generics
+Generics are used through the CrudRepository<T> interface, improving type safety
+and reusability of CRUD operations.
 
-Use of generic interface CrudRepository<T>
+Example:
 
-Improves reusability and type safety
+public interface CrudRepository<T> {
+    void create(T entity);
+    List<T> getAll();
+    void delete(int id);
+}
 
-<br>
-Lambda Expressions
+---
 
-Lambdas are used to sort cars by price
+### Lambdas
 
-Implemented in SortingUtils
+Lambda expressions are used to sort cars by price.
 
-<br>
-Reflection
+Example:
 
-Implemented using ReflectionUtils.
-At runtime it outputs:
+cars.sort(Comparator.comparingDouble(Car::getPricePerDay));
 
-Class name
+---
 
-Fields
+### Reflection
 
-Methods
+Reflection is demonstrated using ReflectionUtils.
 
-Output is visible in the console.
+Example:
 
-<br>
-Interface Default and Static Methods
+Class<?> clazz = EconomyCar.class;
+Method[] methods = clazz.getDeclaredMethods();
 
-Validatable interface provides:
+The reflection output prints class name, fields, and methods at runtime and is
+visible in the application console.
 
-A default validation method
+---
 
-A static helper method
+### Interface Default and Static Methods
 
-<br><br>
+The Validatable interface contains default and static methods.
 
-C. Object-Oriented Design
-Abstract Classes and Inheritance
+Example:
 
-BaseEntity – abstract base class
+public interface Validatable {
+    default boolean isValid() {
+        return true;
+    }
 
-Car – abstract subclass
+    static void logValidation() {
+        System.out.println("Validation executed");
+    }
+}
 
-EconomyCar, LuxuryCar – concrete implementations
+---
 
-<br>
-Composition
+## C. OOP Documentation
 
-Rental contains a Car
+### Abstract Classes and Subclasses
 
-Rental contains a Customer
+- BaseEntity is an abstract base class
+- Car is an abstract subclass of BaseEntity
+- EconomyCar and LuxuryCar are concrete subclasses of Car
 
-<br>
-Polymorphism
+---
 
-Pricing logic overridden in subclasses
+### Composition
 
-Objects handled using Car references
+Rental contains a Car and a Customer.
 
-<br><br>
+Example:
 
-D. Database Design
-Schema
+public class Rental {
+    private Car car;
+    private Customer customer;
+}
 
-Tables used in the system:
+---
 
-cars
+### Polymorphism
 
-customers
+Pricing logic is overridden in EconomyCar and LuxuryCar.
+Objects are handled through base class references.
 
-rentals
+Example:
 
-<br>
-Constraints
+Car car = new LuxuryCar(...);
+double price = car.calculatePrice(days);
 
-Primary keys on all tables
+---
 
-Foreign keys:
+## D. Database Section
 
-rentals.car_id → cars.id
+### Schema
 
-rentals.customer_id → customers.id
+The database contains three tables:
+- cars
+- customers
+- rentals
 
-CHECK constraints for numeric values
+---
 
-<br>
-Sample Inserts
+### Constraints
+
+- Primary keys on all tables
+- Foreign keys:
+  rentals.car_id references cars.id
+  rentals.customer_id references customers.id
+- CHECK constraints ensure valid numeric values
+
+---
+
+### Sample Inserts
+
 INSERT INTO cars (name, type, price_per_day, available)
 VALUES ('Toyota Corolla', 'ECONOMY', 50, true);
 
 INSERT INTO cars (name, type, price_per_day, available)
 VALUES ('Mercedes S-Class', 'LUXURY', 150, true);
 
+---
 
-<br><br>
+## E. Architecture Explanation
 
-E. Architecture Explanation
-Layered Architecture
+The application follows a layered architecture:
+
 Controller (REST API)
-        ↓
-Service (Business Logic)
-        ↓
+↓
+Service (Business Logic and Validation)
+↓
 Repository (JDBC)
-        ↓
+↓
 PostgreSQL Database
 
-<br>
-Example Request Flow
+---
 
-Client sends an HTTP request
+### Example Request Flow
 
-Controller processes the request
+1. Client sends HTTP request
+2. Controller receives the request
+3. Service validates business rules
+4. Repository executes SQL via JDBC
+5. Result is returned as JSON
 
-Service layer applies business rules
+---
 
-Repository executes SQL using JDBC
+## F. Execution Instructions
 
-Response returned as JSON
+### Requirements
 
-<br><br>
+- Java JDK 17 or higher
+- PostgreSQL
+- Maven
+- Spring Boot
 
-F. Execution Instructions
-Requirements
+---
 
-Java JDK 17 or higher
-
-PostgreSQL
-
-Maven
-
-Spring Boot
-
-<br>
-How to Run
-
-Create database tables using schema.sql
-
-Configure database credentials in application.properties
-
-Run the application:
+### How to Run
 
 mvn spring-boot:run
 
-
-Server starts at:
+The server starts at:
 
 http://localhost:8080
 
+---
 
-<br><br>
+## G. Screenshots
 
-G. Screenshots
-
-Screenshots are located in:
-
-docs/screenshots/
-
+Four screenshots are included in the docs/screenshots directory.
 
 They demonstrate:
+- Successful GET request (CRUD read)
+  <img width="1593" height="992" alt="scsh1" src="https://github.com/user-attachments/assets/7ac0fd44-0004-4dd4-b703-efbdab4d8570" />
 
-Successful CRUD operations (GET)
+- Successful POST request (CRUD create)
+ <img width="1585" height="960" alt="scsh2" src="https://github.com/user-attachments/assets/e51f2823-b69c-43f3-8dd8-3c1d4f63f425" />
 
-Successful CRUD operations (POST)
+- Validation failure with HTTP 400 Bad Request
+  <img width="1597" height="955" alt="scsh3" src="https://github.com/user-attachments/assets/e65011d8-6bd5-46d0-860f-3e347ab36778" />
 
-Validation failure (400 Bad Request)
+- Reflection utility output
+<img width="1583" height="989" alt="scsh4" src="https://github.com/user-attachments/assets/fd2ee867-3ff1-4f6e-abad-b65d0bb968b1" />
 
-Reflection utility output
+---
 
-<br><br>
+## H. Reflection
 
-H. Reflection
-What I Learned
+### What I Learned
 
-Applying SOLID principles in a real-world project
+- Applying SOLID principles in a real project
+- Designing clean layered architecture
+- Using generics, lambdas, and reflection
+- Building REST APIs with Spring Boot
 
-Designing clean layered architecture
+---
 
-Using generics, lambdas, and reflection
+### Challenges
 
-Building REST APIs with Spring Boot
+- Applying dependency inversion correctly
+- Transitioning from console-based logic to REST APIs
+- Implementing proper validation and error handling
 
-<br>
-Challenges Faced
+---
 
-Correct application of Dependency Inversion
+### Value of SOLID Architecture
 
-Transition from console-based logic to REST APIs
+SOLID principles significantly improved maintainability, extensibility,
+readability, and real-world applicability of the code.
 
-Proper validation and error handling
+---
 
-<br>
-Value of SOLID Architecture
+## Conclusion
 
-Applying SOLID principles significantly improved:
-
-Maintainability
-
-Extensibility
-
-Readability
-
-Real-world applicability
-
-<br><br>
-
-Conclusion
-
-This project fully satisfies Assignment 4 and Endterm requirements, demonstrating:
-
-SOLID principles
-
-Advanced Object-Oriented Programming
-
-Clean Spring Boot architecture
-
-JDBC and PostgreSQL integration
-
-Functional REST API with validation
+This project fully satisfies Assignment 4 and Endterm requirements.
+It demonstrates SOLID principles, advanced OOP features, clean Spring Boot
+architecture, proper JDBC and PostgreSQL integration, and a functional REST API
+with validation and error handling.
+**
